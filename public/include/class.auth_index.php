@@ -201,8 +201,8 @@ class AuthIndex
 			// check if the auth rules have changed for this pid
 			// - if they haven't then we don't need to recurse.
 			$res = array();
-			$stmt = "SELECT * ".
-                    "FROM {$dbtp}auth_index2 WHERE authi_pid=?";
+			$stmt = "SELECT authi_pid, aro_role as authi_role, authi_arg_id FROM {$dbtp}auth_index2 i
+                JOIN {$dbtp}auth_roles r ON r.aro_id = i.authi_role  WHERE authi_pid=?"; 
 			try {
 				$res = $db->fetchAll($stmt, array($pid));
 			}
@@ -319,7 +319,9 @@ class AuthIndex
 			foreach ($children as $child_pid) {
 				$auth_index = new AuthIndex;
         		$auth_index->setBGP($this->bgp);
-        		$auth_index->setIndexAuthBGP($child_pid, $recurse);
+        		// Set topcall to false since we are now recursing to child records
+            $topcall = false;
+        		$auth_index->setIndexAuthBGP($child_pid, $recurse, $topcall);
 			}
 
 			if( APP_FILECACHE == "ON" ) {
